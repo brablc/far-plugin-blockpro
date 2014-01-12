@@ -1,0 +1,338 @@
+.Language=Engligh,English
+.PluginContents=Block Processor
+
+@Main
+$ #Block Processor Version 2.11#
+$ #(c) Ondrej Brablc 2002#
+
+ This plugin allows to process selected text (block) in the internal editor or
+entire files from the file panels by any external program.
+
+ The external programs/scripts are configured on main screen, which appears
+after the plugin is called. Only the description of the script and the path to
+executable command is needed for programs that can read from standard input and
+write to standard output. Some programs cannot handle these two files (for
+example BATCH files), in this case use ~placeholders~@Placeholders@.
+
+ BlockPro allows to use its ~own plugins~@BPPlugins@ in order to perform some
+task where either access to FAR's functions is necessary or where the script
+cannot help. Example of such own plugin can be found in item
+"Context executor\C,C++\FAR Plugins API" or "Context executor\Windows Scripting\JScript Language Reference".
+
+
+ Like in the user menu the command to be executed can be altered by additional
+run-time parameters. See section ~parameters~@Params@.
+
+ For the entire file processing check ~configuration~@Config@ options.
+
+ #How it works#
+ 컴컴컴컴컴컴
+
+ The content of the block is saved to temporary file (and converted to OEM if the
+editor is in ANSI mode). The program is run with input from this file and with captured
+output. The output file is then read and pasted to the place occupied before for column
+blocks and instead of selected stream blocks (now converting vice versa).
+
+
+ If run from file panels then it just calls the program with redirected input
+and output to the selected file. I know this is easy job but I find it handy to
+have for example Perl Sort function on my finger tips and call it on entire file.
+
+ #About#
+ 컴컴�
+
+ Author:    #Ondrej Brablc#
+ Place:     Germany, Frankfurt am Main
+ Email:     ~far@@brablc.com~@mailto:far@@brablc.com?Subject=BlockPro@
+ Web  :     ~http://far.brablc.com~@http://far.brablc.com@
+
+ #Copyright#
+ 컴컴컴컴�
+ Please read #Doc\Licence.txt# for details about licences for use and distribution of this plugin.
+
+@Contents
+
+ List of all help topics:
+
+ ~Main~@Main@
+ ~Config~@Config@
+ ~MainMenu~@Main Menu@
+ ~Menu~@Edit Menu@
+ ~Command setup~@Command@
+ ~BlockPro plugins~@BPPlugins@
+ ~Placeholders~@Placeholders@
+ ~Parameters~@Parametes@
+ ~Default values~@Default@
+ ~Create new menu item~@Choose@
+ ~Output~@Output@
+ ~LineJump~@Line Jump Menu@
+
+ Help fro commands from examples:
+
+ ~Command: File compare~@Command: File compare@
+ ~Command: Grep~@Command: Grep@
+ ~Command: Renumber lines~@Command: Renumber lines@
+ ~Command: Find duplicate files~@Command: Find duplicate files@
+ ~Command: Split file~@Command: Split file@
+
+@BPPlugins
+
+ #BlockPro Plugins#
+ 컴컴컴컴컴컴컴컴
+
+ BlockPro release 2.0 introduced new way of calling external functions. It can
+call function from other DLL. The syntax for such call is:
+
+ #bpplugins:Library##Function Parameters#
+
+ Where #bpplugins:# is necessary prefix, #Library# is name of DLL which must be in
+#BPPlugins# subdir of BlockPro plugin and its extension must be #.BPD# (stands for
+BlockPro DLL). #Function# is the name of the function which must be of specified type.
+
+ BlockPro Plugins can use FAR's functions in the same way as any other common plugin can.
+The header file and examples of such functions are included in this distribution.
+
+@Placeholders
+
+ #Placeholders#
+ 컴컴컴컴컴컴
+
+ If the program cannot handle STDIN or STDOUT (or both) then you can use symbol
+#># respective #<#. The symbol will be expanded to the name of the file used
+for standard input respective standard output. Files will be deleted when the
+plugin output is read.
+
+@Params
+
+ #Runtime parameters#
+ 컴컴컴컴컴컴컴컴컴
+
+ There are following types of runtime parameter supported:
+
+ Text input:  #!?<title>?<init>!#
+ Fixed input: #!?<title>??##<init>!#
+ Checkbox:    #!?<title>??<+|->[<on>:<off>]!#
+
+ The #text input# uses the same syntax as the FAR's user menu. It looks like a good idea to
+leave the <init> empty and take advantage of the input field history,
+but the user will not see any default value in this case. ~Default~@Default@ values are
+delivered in separate file. You can later mark one of the items in the history by Ins key
+and this value will become default value. If you specify the init value then you will
+always get this value. The history is stored with the name of the input field. You can
+share the history between different runtime parameters.
+
+ The #fixed input# format will have maximum length equal to the length of the <init> value.
+
+ The #checkbox# allows to define its default value (checked/not checked) by using
+#+# or #-# sign after the second question mark. For example: #!?Justify??+YES:NO!#
+will result in: #[x] Justify#. When the command is executed there will be #YES# instead
+the whole string passed to the program. If the on/off values are not specified (':' character not found in the
+string) after the sign then there will be #0# - not checked or #1# - checked.
+
+ You can specify up to 10 additional parameters.
+
+@Default
+
+ The plugin is using history for all ~runtime parameters~@Params@ of type input field.
+Last history value is shown when the dialog window is opened. There are no default values
+when the user imports Reg\Examples*.reg but user can import these defaults by importing
+Reg\History.reg.
+
+@Command
+
+ #Command setup#
+ 컴컴컴컴컴컴�
+
+ In the command path you can use ~additional parameters~@Params@. If the
+executable command does not support standard input and output redirection you
+can use ~placeholders~@Placeholders@. Native BlockPro Plugins must use specific
+~syntax~@BPPlugins@ for the command path.
+
+ Following options are available (default values are displayed):
+
+ [x] Process input from:         [ ] Auto select:
+ () Only selected text          () Word under cursor
+ ( ) Lines with selection        ( ) Current line
+ ( ) Filename list  [ ] Subdir   ( ) Entire file
+
+ [x] Process output to:          [ ] Preview output
+ () Current editor/file         [ ] Copy first line to clipboard
+ ( ) New editor [ Fixed path ]   [ ] Keep auto selection
+ ( ) New viewer                  [ ] Remove any selection
+ ( ) Line jump menu
+
+ For the entire file processing the #Process input from# must be checked, otherwise
+the command will be run only once without any input regardless on the number of selected
+files. The first two choices are relevant only for processing from the editor. If the
+third choice #Filename list# is selected then the input passed to the command will
+contain name of the current editor file or the list of all selected files from both
+panels if run from the panels. If #Subdir# is checked then the names of directories
+will be passed as well.
+
+ If #Lines with selection# is chosen for #Process input from# then all lines
+with at least one character selected (or current line) are passed to the
+command. The handling of the ouptut is then the same for all block types - like
+stream blocks. The selection is not changed for column block. For stream block
+full lines are selected. Two macros can be used together with this choice:
+!?START?! and !?WIDTH?!. They expand to the start position and width of the
+block. If the stream block covers the end of line then these two macros will not
+be expanded. If there is no block then the start contains the position of the
+cursor and width is zero.
+
+ If #Process input from# is checked then following FAR menu like macros are expanded:
+
+ !!       '!' character
+ !        Long file name without extension
+ !~~       Short file name without extension
+ !.!      Long file name with extension
+ !-!      Short file name with extension
+ !:       Current drive
+ !\       Current path
+ !/       Short name of the current path
+
+ If the current situation does not allow to process the output to current editor
+then it will be saved to new editor. The #Process output to# can have three states.
+If the state [?] is selected then the user is prompted for the output. The button
+#Fixed path# can be pressed in order to set up fixed path for the output to a new editor.
+The last choice #Line jump menu# is described in its own ~chapter~@LineJump@.
+
+@Config
+
+ #Configuration#
+ 컴컴컴컴컴컴�
+
+ When the #Enable entire file processing# is not checked then the plugin is not
+shown in the panel's plugins menu.
+
+ The option #Create backup of the file processed# is used only for entire file
+processing.
+
+ If you do not like non persistent block then you can use option
+#Non persistent blocks for autoselect# to deselect block if the cursor is
+outside of the block and the command has activate autoselection.
+
+ You can setup how many lines should be shown in the preview by setting
+#Number of lines for preview#. This number is used also when displaying error
+during command execution.
+
+ The plugin recognizes that function is called using shortcat by the delay time between
+keystrokes. If the time between the keystorkes is less then 5 miniliseconds (default value),
+then this choice is not remembered. The delay time can be changed using
+#Remember choice after delay in milisec#.
+
+@Choose
+
+ Select what kind of new menu item you want to create:
+
+ #Item# - ordinary command.
+ #Menu# - new menu to group commands.
+ #Extension menu# - file extension sensitive menu, this kind of menu
+will be automatically entered if the extension of the current file matches
+the extensions listed. It will never be marked as the last command for the current
+menu. This allows default command to be included in the parent menu of the extension
+menus.
+
+@Output
+
+ Select where you want the output to be saved. When processing from the panels
+then the selection of current editor might not be accepted for some combinations
+of input processing.
+
+@LineJump
+
+ After the output is read into the menu, user can view long lines by pressing F3 or
+to select a menu item containing filename and number of the line he wants to jump to
+and press ENTER to get there.
+
+ Recognized formats of the menu items are:
+
+ #--- BEGIN ---#
+ #filename linenumber anything#
+ #filename:linenumber:anything#
+ #--- END ---#
+
+ If the extracted filename does not exist then it is assumed to be a line number.
+
+ If the program does not provide output in this form it is recommended to pass it
+through a pipe. See make and compiler for C++ which is passed through perl pipe.
+
+@MainMenu
+
+ Do you want to learn something about ~BlockPro~@Main@ in general?
+
+ In this menu you can do following actions:
+
+ #Enter# - execute the command or go to submenu
+ #Ins#   - insert new command call or submenu
+ #Del#   - delete command call or empty submenu
+ #Esc#   - close the plugin
+ #BkSpc# - go to upper level in menu
+ #F3#    - view last output of jump line menu
+ #F4#    - edit parameters of command call or shortcut of submenu
+ #F9#    - disable/enable command execution in the current mode (panels/editor)
+
+@Menu
+
+ There are two types of menus: #regular# with hotkey and #extension# menus with list
+of extensions.
+
+ If the parent menu containing some extension menus is opened from the editor then the first extension
+menu whose list of extensions matches the file extension is automatically entered.
+
+@Command: File compare
+
+ This #file compare# can compare only two files from the same panel.
+
+@Command: Grep
+
+ #String regepx# must containd opening and closing slash //. You can specify
+substitution s/// as well. Regular expression will be evaluated according to
+your Perl version.
+
+@Command: Renumber lines
+
+ ~Default~@Default@ values for #Renumber Lines# are:
+
+ Start with number = 0
+ Increment by      = 1
+ Printf format     = %d
+
+@Command: Find duplicate files
+
+ This script searches the selected files and directories and finds files with the
+same size. The files with the same size are compared binary and if they are the
+same they are returned back to output using the printf command and custom format
+string. The first %s is substituted by the oldest file with this size and the second
+with the file of the same size and content.
+
+ If we have files A.TXT and B.TXT and C.TXT and A.TXT is older  then  B.TXT  and
+this is older then C.TXT, then the output using ~default~@Default@ format string
+#"%s"="%s"# will look as follows:
+
+ "A.TXT"="B.TXT"
+ "A.TXT"="C.TXT"
+
+ If the #Swap files for printf# is checked then it will look like:
+
+ "B.TXT"="A.TXT"
+ "C.TXT"="A.TXT"
+
+ If you want to delete all files and leave only the oldest then you can check swap files
+and use format string #del "%s"#.
+
+@Command: Split file
+
+ Choose the size for the partial files and select the format of the output. The format string
+is used on following array: #basename#, #extension#, #counter#. The ~default~@Default@
+format #%s.%1.1s%02d# produces:
+
+ Source: Video.mpg
+ Output: Video.m01
+         Video.m02
+
+ More soficticated way of defining the output names can be developed on demand.
+
+@Command: Incremental change
+
+ The input is comma separated values file (comma as separator and " as quote character). The text is treated as
+records with incremental changes. The output will be only the columns where any change has been observed.
